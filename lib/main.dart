@@ -6,7 +6,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await Hive.openBox('journalBox');
+    await Hive.openBox('monthlyJournalBox');
+
     await Hive.openBox('monthlyLearningsBox'); // 👈 THIS WAS MISSING
+
+    
 
   runApp(const MyApp());
 }

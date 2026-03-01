@@ -58,6 +58,8 @@ pickImage() async {
 
 saveEntry() async {
   final entry = {
+      "id": DateTime.now().millisecondsSinceEpoch.toString(),
+
     "date": DateFormat('yyyy-MM-dd').format(selectedDate),
     "bias": biasController.text,
     "concepts": conceptsController.text,
@@ -69,7 +71,9 @@ saveEntry() async {
   };
 
   await HiveService.addEntry(entry);
-  Navigator.pop(context);
+    await HiveService.addEntryToMonth(entry);
+    Navigator.pop(context);
+
 }
 
 

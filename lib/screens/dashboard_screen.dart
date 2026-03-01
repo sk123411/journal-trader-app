@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_journal/database/hive_service.dart';
 import 'package:flutter_journal/widgets/add_monthly_learning_widget.dart';
+import 'package:flutter_journal/widgets/month_drawer.dart';
 import 'add_entry_screen.dart';
 import 'entries_list_screen.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -13,17 +14,41 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+
+  var data;
   int wins = 0, losses = 0, breakeven = 0, total = 0;
     final learnings = HiveService.getAllMonthlyLearnings();
 
+    var selectedMonth=HiveService.getCurrentMonth();
+
 Future loadStats() async {
-  final data = HiveService.getEntries();
+  if (selectedMonth == null) return;
+
+   data =
+      HiveService.monthlyJournalBox.get(selectedMonth);
+
+  if (data == null) {
+    setState(() {
+      total = 0;
+      wins = 0;
+      losses = 0;
+      breakeven = 0;
+    });
+    return;
+  }
+
+  final entries = List<Map<String, dynamic>>.from(
+    data.map((e) => Map<String, dynamic>.from(e)),
+  );
 
   setState(() {
-    total = data.length;
-    wins = data.where((e) => e['result'] == 'win').length;
-    losses = data.where((e) => e['result'] == 'loss').length;
-    breakeven = data.where((e) => e['result'] == 'breakeven').length;
+    total = entries.length;
+    wins =
+        entries.where((e) => e['result'] == 'win').length;
+    losses =
+        entries.where((e) => e['result'] == 'loss').length;
+    breakeven =
+        entries.where((e) => e['result'] == 'breakeven').length;
   });
 }
 
@@ -60,6 +85,15 @@ void didChangeDependencies() {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: MonthDrawer(onTapMonth: (month){
+
+          setState(() {
+            selectedMonth = month;
+              loadStats();
+
+          });
+
+      },),
       appBar: AppBar(title: const Text("Trading Journal Dashboard")),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -79,10 +113,14 @@ void didChangeDependencies() {
             const SizedBox(height: 40),
 
             ElevatedButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const AddEntryScreen()))
-                    .then((_) => loadStats());
+              onPressed: () async{
+               await Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (_) => AddEntryScreen(),
+  ),
+);
+await loadStats(); // no extra setState needed
               },
               child: const Text("Add Entry"),
             ),
@@ -92,7 +130,7 @@ void didChangeDependencies() {
             ElevatedButton(
               onPressed: () async{
                await Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const EntriesListScreen()));
+                    MaterialPageRoute(builder: (_) =>  EntriesListScreen(data,selectedMonth)));
 
                     setState(() {
                       loadStats();
@@ -230,11 +268,13 @@ Text("Top learnings of the month",style: TextStyle(fontSize: 18),),
       ),
       floatingActionButton: FloatingActionButton(
   onPressed: () {
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (_) => const AddMonthlyLearningSheet(),
     );
+
   },
   child: const Icon(Icons.add),
 ),

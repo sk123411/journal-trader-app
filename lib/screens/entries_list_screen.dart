@@ -6,27 +6,21 @@ import 'package:flutter_journal/database/hive_service.dart';
 import 'package:flutter_journal/widgets/image_preview_dialog.dart';
 
 class EntriesListScreen extends StatefulWidget {
-  const EntriesListScreen({super.key});
+List< dynamic> entries = [];
+String currentMonth;
+   EntriesListScreen(this.entries,this.currentMonth);
 
   @override
   State<EntriesListScreen> createState() => _EntriesListScreenState();
 }
 
 class _EntriesListScreenState extends State<EntriesListScreen> {
-  List<Map<String, dynamic>> entries = [];
+  
 
 
-void loadData() {
-  entries = HiveService.getEntries();
-  setState(() {});
-}
 
 
-  @override
-  void initState() {
-    super.initState();
-    loadData();
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +28,9 @@ void loadData() {
     return Scaffold(
       appBar: AppBar(title: const Text("Journal Entries")),
       body: ListView.builder(
-        itemCount: entries.length,
+        itemCount: widget.entries.length,
         itemBuilder: (context, index) {
-          final e = entries[index];
+          final e = widget.entries[index];
 
           return Card(
             color: e['result']=="win"?Colors.green.shade300: e['result']=="loss"?Colors.red.shade300:null,
@@ -75,7 +69,7 @@ void loadData() {
               subtitle: Text("${e['date']} | ${e['result']}"),
               trailing: IconButton(onPressed: () async{
 
-_showDeleteDialog(context, index);
+_showDeleteDialog(context, e['id']);
 
               }, icon: Icon(Icons.delete)),
             ),
@@ -85,7 +79,7 @@ _showDeleteDialog(context, index);
     );
   }
 
-  Future<void> _showDeleteDialog(BuildContext context, int id) async {
+  Future<void> _showDeleteDialog(BuildContext context, String id) async {
   final bool? confirmDelete = await showDialog<bool>(
     context: context,
     barrierDismissible: false,
@@ -113,11 +107,14 @@ _showDeleteDialog(context, index);
     },
   );
 
-  if (confirmDelete == true) {
-                await HiveService.deleteEntry(id);
-    setState(() {
-      loadData();
-    });
-  }
+if (confirmDelete == true) {
+  await HiveService.deleteEntryEverywhere(id);
+
+  setState(() {
+    widget.entries =
+        HiveService.monthlyJournalBox
+            .get(widget.currentMonth) ?? [];
+  });
+}
 }
 }
