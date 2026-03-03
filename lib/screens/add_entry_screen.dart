@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_journal/database/hive_service.dart';
 import 'package:flutter_journal/widgets/image_preview_dialog.dart';
+import 'package:flutter_journal/widgets/strategy_dropdown.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
@@ -21,6 +22,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   final conceptsController = TextEditingController();
   final mistakesController = TextEditingController();
     final instrumentController = TextEditingController();
+    final strategyController = TextEditingController();
 
 Uint8List? imageBytes;
 String? imageBase64;
@@ -63,6 +65,8 @@ saveEntry() async {
     "date": DateFormat('yyyy-MM-dd').format(selectedDate),
     "bias": biasController.text,
     "concepts": conceptsController.text,
+        "strategy": strategyController.text,
+
     "mistakes": mistakesController.text,
         "instrument": instrumentController.text,
 
@@ -113,7 +117,12 @@ saveEntry() async {
               decoration: const InputDecoration(labelText: "Mistakes"),
               maxLines: 3,
             ),
+            const SizedBox(height: 10),
 
+            StrategyDropdown((strategy) {
+
+                strategyController.text = strategy;
+            }),
             const SizedBox(height: 10),
 
             DropdownButtonFormField(

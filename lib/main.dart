@@ -7,6 +7,7 @@ void main() async {
   await Hive.initFlutter();
   await Hive.openBox('journalBox');
     await Hive.openBox('monthlyJournalBox');
+    await Hive.openBox('strategyBox');
 
     await Hive.openBox('monthlyLearningsBox'); // 👈 THIS WAS MISSING
 

@@ -3,45 +3,57 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 
 import 'package:flutter_journal/database/hive_service.dart';
+import 'package:flutter_journal/widgets/add_strategy_widget.dart';
 import 'package:flutter_journal/widgets/image_preview_dialog.dart';
 
-class EntriesListScreen extends StatefulWidget {
+class StrategyListScreen extends StatefulWidget {
   List<dynamic> entries = [];
-  String currentMonth;
-  EntriesListScreen(this.entries, this.currentMonth);
+  StrategyListScreen(this.entries);
 
   @override
-  State<EntriesListScreen> createState() => _EntriesListScreenState();
+  State<StrategyListScreen> createState() => _StrategyListScreenState();
 }
 
-class _EntriesListScreenState extends State<EntriesListScreen> {
+class _StrategyListScreenState extends State<StrategyListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Journal Entries")),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            builder: (_) => AddStrategySheet(() {}),
+          );
+
+          if (result == true) {
+            setState(() {
+              widget.entries = HiveService.strategyBox.values.toList();
+            });
+          }
+        },
+        child: const Icon(Icons.add),
+      ),
+      appBar: AppBar(title: const Text("Strategies")),
       body: ListView.builder(
         itemCount: widget.entries.length,
         itemBuilder: (context, index) {
           final e = widget.entries[index];
 
           return Card(
-            color: e['result'] == "win"
-                ? Colors.green.shade300
-                : e['result'] == "loss"
-                ? Colors.red.shade300
-                : null,
             child: ListTile(
-              leading: e['imageBase64'] != ""
+              leading: e['referenceImage64'] != ""
                   ? GestureDetector(
                       onTap: () {
                         showDialog(
                           context: context,
-                          builder: (_) =>
-                              ImagePreviewDialog(base64Image: e['imageBase64']),
+                          builder: (_) => ImagePreviewDialog(
+                            base64Image: e['referenceImage64'],
+                          ),
                         );
                       },
                       child: Image.memory(
-                        base64Decode(e['imageBase64']),
+                        base64Decode(e['referenceImage64']),
                         width: 50,
                         height: 50,
                         fit: BoxFit.cover,
@@ -52,22 +64,31 @@ class _EntriesListScreenState extends State<EntriesListScreen> {
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Instrument: ${e['instrument']}",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+                  Text(e['name'], style: TextStyle(fontSize: 18)),
+                  SizedBox(height: 12),
+                  ...e["concepts"].map(
+                    (point) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text("• ", style: TextStyle(fontSize: 16)),
+                          Expanded(
+                            child: Text(
+                              point,
+                              style: const TextStyle(fontSize: 15),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-
-                  Text("Bias: ${e['bias']}"),
-                  Text("Concepts Used: ${e['concepts']}"),
-
-                  Text("Mistakes: ${e['mistakes']}"),
-                  Text("Strategy: ${e['strategy']}"),
                 ],
               ),
-              subtitle: Text("${e['date']} | ${e['result']}"),
+
               trailing: IconButton(
                 onPressed: () async {
-                  _showDeleteDialog(context, e['id']);
+                  _showDeleteDialog(context, index);
                 },
                 icon: Icon(Icons.delete),
               ),
@@ -78,7 +99,7 @@ class _EntriesListScreenState extends State<EntriesListScreen> {
     );
   }
 
-  Future<void> _showDeleteDialog(BuildContext context, String id) async {
+  Future<void> _showDeleteDialog(BuildContext context, int index) async {
     final bool? confirmDelete = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -107,11 +128,10 @@ class _EntriesListScreenState extends State<EntriesListScreen> {
     );
 
     if (confirmDelete == true) {
-      await HiveService.deleteEntryEverywhere(id);
+      await HiveService.deleteStrategy(index);
 
       setState(() {
-        widget.entries =
-            HiveService.monthlyJournalBox.get(widget.currentMonth) ?? [];
+        widget.entries = HiveService.strategyBox.values.toList();
       });
     }
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_journal/database/hive_service.dart';
+import 'package:flutter_journal/screens/strategy_list_screen.dart';
 import 'package:flutter_journal/widgets/add_monthly_learning_widget.dart';
 import 'package:flutter_journal/widgets/month_drawer.dart';
 import 'add_entry_screen.dart';
@@ -143,7 +144,18 @@ await loadStats(); // no extra setState needed
 
             SizedBox(height: 12,),
 
+  ElevatedButton(
+              onPressed: () async{
+               await Navigator.push(context,
+                    MaterialPageRoute(builder: (_) =>  StrategyListScreen(HiveService.getStrategies())));
 
+                    setState(() {
+                      loadStats();
+                    });
+              },
+              
+              child: const Text("View Strategies"),
+            ),
 
 
 SizedBox(height: 12,),

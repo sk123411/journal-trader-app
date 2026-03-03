@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 class HiveService {
   static final journalBox = Hive.box('journalBox');
     static final monthlyJournalBox = Hive.box('monthlyJournalBox');
+    static final strategyBox = Hive.box('strategyBox');
 
   static final monthlyLearningsBox = Hive.box('monthlyLearningsBox');
 
@@ -119,12 +120,28 @@ static Future addMonthlyData() async {
         .toList();
   }
 
+
+  static List<Map<String, dynamic>> getStrategies() {
+    return strategyBox.values
+        .map((e) => Map<String, dynamic>.from(e))
+        .toList();
+  }
+
+static List<String> getStrategiesNameOnly() {
+  return strategyBox.values
+      .where((e) => e['name'] != null && e['name'].toString().isNotEmpty)
+      .map((e) => e['name'].toString())
+      .toList();
+}
+
   static Future deleteEntry(int index) async {
     await journalBox.deleteAt(index);
   }
 
 
-
+  static Future deleteStrategy(int index) async {
+    await strategyBox.deleteAt(index);
+  }
 
   static Future deleteEntryFromMonth(
     String monthKey,
@@ -157,6 +174,10 @@ static Future addMonthlyData() async {
       "month": month,
       "learnings": learnings,
     });
+  }
+
+    static Future addStrategy(Map<String, dynamic> strategy) async {
+    await strategyBox.add(strategy);
   }
 
   static List<Map<String, dynamic>> getAllMonthlyLearnings() {

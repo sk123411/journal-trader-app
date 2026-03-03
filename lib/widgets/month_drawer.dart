@@ -10,7 +10,6 @@ class MonthDrawer extends StatelessWidget {
 @override
 Widget build(BuildContext context) {
   final months = HiveService.monthlyJournalBox.keys.toList();
-  print("sssssssss ${ HiveService.monthlyJournalBox.values.toList()}");
 
   return Drawer(
     child: ListView(
