@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 
 import 'package:flutter_journal/database/hive_service.dart';
+import 'package:flutter_journal/screens/add_entry_screen.dart';
 import 'package:flutter_journal/widgets/image_preview_dialog.dart';
 
 class EntriesListScreen extends StatefulWidget {
@@ -18,6 +19,20 @@ class _EntriesListScreenState extends State<EntriesListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+         await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => AddEntryScreen()),
+                );
+
+            setState(() {
+              widget.entries = HiveService.monthlyJournalBox.get(widget.currentMonth).toList();
+            });
+          
+        },
+        child: const Icon(Icons.add),
+      ),
       appBar: AppBar(title: const Text("Journal Entries")),
       body: ListView.builder(
         itemCount: widget.entries.length,
