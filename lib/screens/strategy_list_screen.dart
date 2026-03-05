@@ -18,7 +18,10 @@ class _StrategyListScreenState extends State<StrategyListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
       floatingActionButton: FloatingActionButton(
+        
         onPressed: () async {
           final result = await showModalBottomSheet(
             context: context,
@@ -42,7 +45,7 @@ class _StrategyListScreenState extends State<StrategyListScreen> {
 
           return Card(
             child: ListTile(
-              leading: e['referenceImage64'] != ""
+              leading: e['referenceImage64'] != null
                   ? GestureDetector(
                       onTap: () {
                         showDialog(

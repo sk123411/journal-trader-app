@@ -19,6 +19,7 @@ class _EntriesListScreenState extends State<EntriesListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
          await Navigator.push(
