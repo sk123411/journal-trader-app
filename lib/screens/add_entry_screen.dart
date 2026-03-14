@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_journal/database/hive_service.dart';
+import 'package:flutter_journal/helper_methods/helper_methods.dart';
 import 'package:flutter_journal/widgets/image_preview_dialog.dart';
 import 'package:flutter_journal/widgets/strategy_dropdown.dart';
 import 'package:image_picker/image_picker.dart';
@@ -21,16 +22,15 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   final biasController = TextEditingController();
   final conceptsController = TextEditingController();
   final mistakesController = TextEditingController();
-    final instrumentController = TextEditingController();
-    final strategyController = TextEditingController();
+  final instrumentController = TextEditingController();
+  final strategyController = TextEditingController();
 
-Uint8List? imageBytes;
-String? imageBase64;
-
+  Uint8List? imageBytes;
+  String? imageBase64;
+  final _formKey = GlobalKey<FormState>();
   DateTime selectedDate = DateTime.now();
   String result = "win";
   File? imageFile;
-
 
   pickDate() async {
     final picked = await showDatePicker(
@@ -45,42 +45,38 @@ String? imageBase64;
     }
   }
 
+  pickImage() async {
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
 
-pickImage() async {
-  final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-
-  if (picked != null) {
-    final bytes = await picked.readAsBytes();
-    setState(() {
-      imageBytes = bytes;
-      imageBase64 = base64Encode(bytes);
-    });
+    if (picked != null) {
+      final bytes = await picked.readAsBytes();
+      setState(() {
+        imageBytes = bytes;
+        imageBase64 = base64Encode(bytes);
+      });
+    }
   }
-}
 
-saveEntry() async {
-  final entry = {
+  saveEntry() async {
+    final entry = {
       "id": DateTime.now().millisecondsSinceEpoch.toString(),
 
-    "date": DateFormat('yyyy-MM-dd').format(selectedDate),
-    "bias": biasController.text,
-    "concepts": conceptsController.text,
-        "strategy": strategyController.text,
+      "date": DateFormat('yyyy-MM-dd').format(selectedDate),
+      "bias": biasController.text,
+      "concepts": conceptsController.text,
+      "strategy": strategyController.text,
 
-    "mistakes": mistakesController.text,
-        "instrument": instrumentController.text,
+      "mistakes": mistakesController.text,
+      "instrument": instrumentController.text,
 
-    "imageBase64": imageBase64 ?? "",
-    "result": result,
-  };
+      "imageBase64": imageBase64 ?? "",
+      "result": result,
+    };
 
-  await HiveService.addEntry(entry);
+    await HiveService.addEntry(entry);
     await HiveService.addEntryToMonth(entry);
     Navigator.pop(context);
-
-}
-
-
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,84 +84,134 @@ saveEntry() async {
       appBar: AppBar(title: const Text("Add Journal Entry")),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: ListView(
-          children: [
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              // Date
+              ListTile(
+                title: Text(
+                  "Date: ${DateFormat('yyyy-MM-dd').format(selectedDate)}",
+                ),
+                trailing: const Icon(Icons.calendar_today),
+                onTap: pickDate,
+              ),
+              TextFormField(
+                controller: instrumentController,
+                decoration: const InputDecoration(labelText: "Instrument"),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Instrument is required";
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: biasController,
+                decoration: const InputDecoration(labelText: "Bias"),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Bias is required";
+                  }
+                  return null;
+                },
+              ),
 
-            // Date
-            ListTile(
-              title: Text(
-                "Date: ${DateFormat('yyyy-MM-dd').format(selectedDate)}"),
-              trailing: const Icon(Icons.calendar_today),
-              onTap: pickDate,
-            ),
-   TextField(
-              controller: instrumentController,
-              decoration: const InputDecoration(labelText: "Instrument"),
-            ),
-            TextField(
-              controller: biasController,
-              decoration: const InputDecoration(labelText: "Bias"),
-            ),
+              TextFormField(
+                controller: conceptsController,
+                decoration: const InputDecoration(labelText: "Concepts Used"),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Concepts are required";
+                  }
+                  return null;
+                },
+              ),
 
-            TextField(
-              controller: conceptsController,
-              decoration: const InputDecoration(labelText: "Concepts Used"),
-            ),
+              TextFormField(
+                controller: mistakesController,
+                decoration: const InputDecoration(labelText: "Mistakes"),
+                maxLines: 3,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Please enter mistakes";
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 10),
 
-            TextField(
-              controller: mistakesController,
-              decoration: const InputDecoration(labelText: "Mistakes"),
-              maxLines: 3,
-            ),
-            const SizedBox(height: 10),
-
-            StrategyDropdown((strategy) {
-
+              StrategyDropdown((strategy) {
                 strategyController.text = strategy;
-            }),
-            const SizedBox(height: 10),
+              }),
+              const SizedBox(height: 10),
 
-            DropdownButtonFormField(
-              value: result,
-              items: const [
-                DropdownMenuItem(value: "win", child: Text("Win")),
-                DropdownMenuItem(value: "loss", child: Text("Loss")),
-                DropdownMenuItem(value: "breakeven", child: Text("Breakeven")),
-              ],
-              onChanged: (v) => setState(() => result = v.toString()),
-            ),
+              DropdownButtonFormField(
+                value: result,
+                items: const [
+                  DropdownMenuItem(value: "win", child: Text("Win")),
+                  DropdownMenuItem(value: "loss", child: Text("Loss")),
+                  DropdownMenuItem(
+                    value: "breakeven",
+                    child: Text("Breakeven"),
+                  ),
+                ],
+                onChanged: (v) => setState(() => result = v.toString()),
+              ),
 
-            const SizedBox(height: 10),
+              const SizedBox(height: 10),
 
-            ElevatedButton(
-              onPressed: pickImage,
-              child: const Text("Pick Chart Image"),
-            ),
+              ElevatedButton(
+                onPressed: pickImage,
+                child: const Text("Pick Chart Image"),
+              ),
 
-if (imageBytes != null)
-  GestureDetector(
-    onTap: () {
-      showDialog(
-        context: context,
-        builder: (_) => ImagePreviewDialog(
-          base64Image: imageBase64!,
-        ),
-      );
-    },
-    child: Padding(
-      padding: const EdgeInsets.all(10),
-      child: Image.memory(imageBytes!, height: 200),
-    ),
-  ),
+              if (imageBytes != null)
+                GestureDetector(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) =>
+                          ImagePreviewDialog(base64Image: imageBase64!),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Image.memory(imageBytes!, height: 200),
+                  ),
+                ),
 
+              const SizedBox(height: 20),
 
-            const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    if (imageBase64 == null) {
+                      HelperMethods.showMyDialog(
+                        "Image is Required",
+                        "Please select trade reference image",
+                        context,
+                      );
+                      return;
+                    }
 
-            ElevatedButton(
-              onPressed: saveEntry,
-              child: const Text("Save Entry"),
-            ),
-          ],
+                    if (strategyController.text.isEmpty) {
+                      HelperMethods.showMyDialog(
+                        "Strategy is Required",
+                        "Please select your strategy",
+                        context,
+                      );
+
+                      return;
+                    }
+
+                    saveEntry();
+                  }
+                },
+                child: const Text("Save Entry"),
+              ),
+            ],
+          ),
         ),
       ),
     );

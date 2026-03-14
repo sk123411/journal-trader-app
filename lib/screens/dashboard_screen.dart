@@ -241,10 +241,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       final monthData = learnings[index];
                       final month = monthData["month"];
                       final points = List<String>.from(monthData["learnings"]);
-                      //be better prepare with analysis on option chart before market open
-                      // analysis on support, resistance , breakout , trendlines and so on
-                      print(month);
-                      print(points);
+                     
 
                       return Card(
                         margin: const EdgeInsets.only(bottom: 16),

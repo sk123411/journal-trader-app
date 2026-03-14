@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_journal/database/hive_service.dart';
+import 'package:flutter_journal/helper_methods/helper_methods.dart';
 import 'package:intl/intl.dart';
 
 class AddMonthlyLearningSheet extends StatefulWidget {
@@ -33,7 +34,15 @@ class _AddMonthlyLearningSheetState
         .where((text) => text.isNotEmpty)
         .toList();
 
-    if (learnings.isEmpty) return;
+ if (learnings.isEmpty) {
+      HelperMethods.showMyDialog(
+        "Point Missing",
+        "Please add minimum one learning point",
+        context,
+      );
+
+      return;
+ }
 
     await HiveService.addMonthlyLearning(
       getCurrentMonth(),
