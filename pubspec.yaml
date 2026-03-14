@@ -51,7 +51,7 @@ msix_config:
   publisher_display_name: Kewat Apps
   identity_name: KewatApps.MyTradingJournal
   publisher: CN=99B9FEF7-F71A-48C8-9039-3B0F0F1F5CC8
-  msix_version: 1.0.0.1
+  msix_version: 1.1.0.0
   logo_path: assets/icon.png
   store: true
 
