@@ -7,7 +7,7 @@ import 'package:flutter_journal/widgets/add_strategy_widget.dart';
 import 'package:flutter_journal/widgets/image_preview_dialog.dart';
 
 class StrategyListScreen extends StatefulWidget {
-  List<dynamic> entries = [];
+  List<dynamic>? entries;
   StrategyListScreen(this.entries);
 
   @override
@@ -38,10 +38,10 @@ class _StrategyListScreenState extends State<StrategyListScreen> {
         child: const Icon(Icons.add),
       ),
       appBar: AppBar(title: const Text("Strategies")),
-      body: ListView.builder(
-        itemCount: widget.entries.length,
+      body: widget.entries==null || (widget.entries!=null && widget.entries!.isEmpty)?Center(child: Text("No Strategy added yet")): ListView.builder(
+        itemCount: widget.entries?.length,
         itemBuilder: (context, index) {
-          final e = widget.entries[index];
+          final e = widget.entries?[index];
 
           return Card(
             child: ListTile(

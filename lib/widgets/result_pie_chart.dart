@@ -15,26 +15,38 @@ class ResultPieChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final total = wins + losses + breakeven;
+
+    // ✅ Handle no data case
+    if (total == 0) {
+      return const Center(
+        child: Text("No data available"),
+      );
+    }
+
     return AspectRatio(
       aspectRatio: 2,
       child: PieChart(
         PieChartData(
           sections: [
-            PieChartSectionData(
-              value: wins.toDouble(),
-              color: Colors.green,
-              title: "Win\n$wins",
-            ),
-            PieChartSectionData(
-              value: losses.toDouble(),
-              color: Colors.red,
-              title: "Loss\n$losses",
-            ),
-            PieChartSectionData(
-              value: breakeven.toDouble(),
-              color: Colors.orange,
-              title: "BE\n$breakeven",
-            ),
+            if (wins > 0)
+              PieChartSectionData(
+                value: wins.toDouble(),
+                color: Colors.green,
+                title: "Win\n$wins",
+              ),
+            if (losses > 0)
+              PieChartSectionData(
+                value: losses.toDouble(),
+                color: Colors.red,
+                title: "Loss\n$losses",
+              ),
+            if (breakeven > 0)
+              PieChartSectionData(
+                value: breakeven.toDouble(),
+                color: Colors.orange,
+                title: "BE\n$breakeven",
+              ),
           ],
         ),
       ),

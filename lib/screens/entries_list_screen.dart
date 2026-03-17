@@ -7,7 +7,7 @@ import 'package:flutter_journal/screens/add_entry_screen.dart';
 import 'package:flutter_journal/widgets/image_preview_dialog.dart';
 
 class EntriesListScreen extends StatefulWidget {
-  List<dynamic> entries = [];
+  List<dynamic>? entries;
   String currentMonth;
   EntriesListScreen(this.entries, this.currentMonth);
 
@@ -28,17 +28,18 @@ class _EntriesListScreenState extends State<EntriesListScreen> {
                 );
 
             setState(() {
-              widget.entries = HiveService.monthlyJournalBox.get(widget.currentMonth).toList();
+              widget.entries =
+            HiveService.monthlyJournalBox.get(widget.currentMonth) ?? [];
             });
           
         },
         child: const Icon(Icons.add),
       ),
       appBar: AppBar(title: const Text("Journal Entries")),
-      body: ListView.builder(
-        itemCount: widget.entries.length,
+      body:widget.entries==null || (widget.entries!=null && widget.entries!.isEmpty)?Center(child: Text("No Entry added yet")): ListView.builder(
+        itemCount: widget.entries?.length,
         itemBuilder: (context, index) {
-          final e = widget.entries[index];
+          final e = widget.entries?[index];
 
           return Card(
             color: e['result'] == "win"

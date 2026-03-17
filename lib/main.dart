@@ -1,22 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_journal/database/hive_service.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'screens/dashboard_screen.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Hive.initFlutter();
-  await Hive.openBox('journalBox');
-    await Hive.openBox('monthlyJournalBox');
-    await Hive.openBox('strategyBox');
-
-    await Hive.openBox('monthlyLearningsBox'); // 👈 THIS WAS MISSING
-
-    
+  await HiveService.loadBoxes();
 
   runApp(const MyApp());
 }
-
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

@@ -11,7 +11,7 @@ class StrategyDropdown extends StatefulWidget {
 }
 
 class _StrategyDropdownState extends State<StrategyDropdown> {
-  List<String> strategies = [];
+  List<String>? strategies;
   String? selectedStrategy;
 
   @override
@@ -27,13 +27,13 @@ class _StrategyDropdownState extends State<StrategyDropdown> {
   
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField<String>(
+    return strategies==null || (strategies!=null && strategies!.isEmpty)?Text("Please add strategy in the strategy screen",style: TextStyle(color: Colors.red),): DropdownButtonFormField<String>(
       value: selectedStrategy,
       decoration: const InputDecoration(
         labelText: "Select Strategy",
         border: OutlineInputBorder(),
       ),
-      items: strategies.map((strategy) {
+      items: strategies?.map((strategy) {
         return DropdownMenuItem<String>(
           value: strategy,
           child: Text(strategy),

@@ -51,9 +51,12 @@ msix_config:
   publisher_display_name: Kewat Apps
   identity_name: KewatApps.MyTradingJournal
   publisher: CN=99B9FEF7-F71A-48C8-9039-3B0F0F1F5CC8
-  msix_version: 1.1.0.0
+  msix_version: 1.4.0.0
   logo_path: assets/icon.png
   store: true
+  architecture: x64
+  dependencies:
+    - Microsoft.VCLibs.140.00.UWPDesktop  
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

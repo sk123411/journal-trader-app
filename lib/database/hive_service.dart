@@ -2,11 +2,41 @@ import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 
 class HiveService {
+
+
+
+
+static loadBoxes() async {
+
+
+await getBox('journalBox');
+
+ await getBox('monthlyJournalBox');
+
+ await getBox('strategyBox');
+
+ await getBox('monthlyLearningsBox');
+
+
+
+}
+
+
+
+  
   static final journalBox = Hive.box('journalBox');
     static final monthlyJournalBox = Hive.box('monthlyJournalBox');
     static final strategyBox = Hive.box('strategyBox');
 
   static final monthlyLearningsBox = Hive.box('monthlyLearningsBox');
+
+
+  static Future<Box> getBox(String name) async {
+    if (Hive.isBoxOpen(name)) {
+      return Hive.box(name);
+    }
+    return await Hive.openBox(name);
+  }
 
   /// ------------------ Journal ------------------
 
@@ -17,6 +47,7 @@ class HiveService {
     journalBox.clear();
     monthlyJournalBox.clear();
     monthlyLearningsBox.clear();
+    strategyBox.clear();
   }
 
 static Future addEntryToMonth(

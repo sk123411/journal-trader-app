@@ -19,9 +19,8 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   var data;
   int wins = 0, losses = 0, breakeven = 0, total = 0;
-  final learnings = HiveService.getAllMonthlyLearnings();
-
-  var selectedMonth = HiveService.getCurrentMonth();
+  var learnings;
+  var selectedMonth;
 
   Future loadStats() async {
     if (selectedMonth == null) return;
@@ -53,8 +52,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    loadStats();
-  }
+     selectedMonth = HiveService.getCurrentMonth();
+  learnings = HiveService.getAllMonthlyLearnings();
+
+  loadStats();
+}
 
   @override
   void didChangeDependencies() {
@@ -221,9 +223,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             ),
 
+            SizedBox(height: 12,),
             Text("Top learnings of the month", style: TextStyle(fontSize: 18)),
 
-            Expanded(
+            Container(
               child: ValueListenableBuilder(
                 valueListenable: Hive.box('monthlyLearningsBox').listenable(),
                 builder: (context, Box box, _) {
@@ -234,84 +237,85 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   }
 
                   final learnings = box.values.toList();
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: learnings.length,
-                    itemBuilder: (context, index) {
-                      final monthData = learnings[index];
-                      final month = monthData["month"];
-                      final points = List<String>.from(monthData["learnings"]);
-                     
-
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        elevation: 3,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              /// Month Title
-                              ///
-                              SizedBox(height: 6),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    month,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.delete,
-                                      color: Colors.red,
-                                    ),
-                                    onPressed: () async {
-                                      await HiveService.deleteMonthlyLearning(
-                                        month,
-                                      );
-                                      (context as Element).markNeedsBuild();
-                                    },
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 12),
-
-                              /// Learning Points
-                              ...points.map(
-                                (point) => Padding(
-                                  padding: const EdgeInsets.only(bottom: 8),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "• ",
-                                        style: TextStyle(fontSize: 16),
+                  return Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: learnings.length,
+                      itemBuilder: (context, index) {
+                        final monthData = learnings[index];
+                        final month = monthData["month"];
+                        final points = List<String>.from(monthData["learnings"]);
+                       
+                    
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                /// Month Title
+                                ///
+                                SizedBox(height: 6),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      month,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                      Expanded(
-                                        child: Text(
-                                          point,
-                                          style: const TextStyle(fontSize: 15),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () async {
+                                        await HiveService.deleteMonthlyLearning(
+                                          month,
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                    
+                                const SizedBox(height: 12),
+                    
+                                /// Learning Points
+                                ...points.map(
+                                  (point) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          "• ",
+                                          style: TextStyle(fontSize: 16),
                                         ),
-                                      ),
-                                    ],
+                                        Expanded(
+                                          child: Text(
+                                            point,
+                                            style: const TextStyle(fontSize: 15),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   );
                 },
               ),
@@ -320,12 +324,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
             builder: (_) => const AddMonthlyLearningSheet(),
           );
+          
         },
         child: const Icon(Icons.add),
       ),
