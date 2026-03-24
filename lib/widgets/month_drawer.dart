@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_journal/database/hive_service.dart';
+import 'package:intl/intl.dart';
 
 class MonthDrawer extends StatelessWidget {
 
@@ -9,8 +10,14 @@ class MonthDrawer extends StatelessWidget {
 
 @override
 Widget build(BuildContext context) {
-  final months = HiveService.monthlyJournalBox.keys.toList();
+final grouped = HiveService.getEntriesGroupedByMonth();
 
+final months = grouped.keys.toList()
+  ..sort((a, b) {
+    final dateA = DateFormat('MMMM yyyy').parse(a);
+    final dateB = DateFormat('MMMM yyyy').parse(b);
+    return dateB.compareTo(dateA); // latest first
+  });
   return Drawer(
     child: ListView(
       children: [

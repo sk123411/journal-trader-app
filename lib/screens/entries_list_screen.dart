@@ -16,6 +16,9 @@ class EntriesListScreen extends StatefulWidget {
 }
 
 class _EntriesListScreenState extends State<EntriesListScreen> {
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,10 +30,10 @@ class _EntriesListScreenState extends State<EntriesListScreen> {
                   MaterialPageRoute(builder: (_) => AddEntryScreen()),
                 );
 
-            setState(() {
-              widget.entries =
-            HiveService.monthlyJournalBox.get(widget.currentMonth) ?? [];
-            });
+          setState(() {
+  final grouped = HiveService.getEntriesGroupedByMonth();
+  widget.entries = grouped[widget.currentMonth] ?? [];
+});
           
         },
         child: const Icon(Icons.add),
@@ -126,10 +129,10 @@ class _EntriesListScreenState extends State<EntriesListScreen> {
     if (confirmDelete == true) {
       await HiveService.deleteEntryEverywhere(id);
 
-      setState(() {
-        widget.entries =
-            HiveService.monthlyJournalBox.get(widget.currentMonth) ?? [];
-      });
+        setState(() {
+  final grouped = HiveService.getEntriesGroupedByMonth();
+  widget.entries = grouped[widget.currentMonth] ?? [];
+});
     }
   }
 }

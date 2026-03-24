@@ -22,32 +22,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
   var learnings;
   var selectedMonth;
 
-  Future loadStats() async {
-    if (selectedMonth == null) return;
+Future loadStats() async {
+  if (selectedMonth == null) return;
 
-    data = HiveService.monthlyJournalBox.get(selectedMonth);
+  final grouped = HiveService.getEntriesGroupedByMonth();
+  data = grouped[selectedMonth] ?? [];
 
-    if (data == null) {
-      setState(() {
-        total = 0;
-        wins = 0;
-        losses = 0;
-        breakeven = 0;
-      });
-      return;
+  int w = 0, l = 0, b = 0;
+
+  for (var e in data) {
+    switch (e['result']) {
+      case 'win':
+        w++;
+        break;
+      case 'loss':
+        l++;
+        break;
+      case 'breakeven':
+        b++;
+        break;
     }
-
-    final entries = List<Map<String, dynamic>>.from(
-      data.map((e) => Map<String, dynamic>.from(e)),
-    );
-
-    setState(() {
-      total = entries.length;
-      wins = entries.where((e) => e['result'] == 'win').length;
-      losses = entries.where((e) => e['result'] == 'loss').length;
-      breakeven = entries.where((e) => e['result'] == 'breakeven').length;
-    });
   }
+
+  setState(() {
+    total = data.length;
+    wins = w;
+    losses = l;
+    breakeven = b;
+  });
+}
 
   @override
   void initState() {

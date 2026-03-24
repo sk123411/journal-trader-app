@@ -74,7 +74,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     };
 
     await HiveService.addEntry(entry);
-    await HiveService.addEntryToMonth(entry);
+    // await HiveService.addEntryToMonth(entry);
     Navigator.pop(context);
   }
 

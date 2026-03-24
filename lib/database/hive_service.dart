@@ -11,7 +11,7 @@ static loadBoxes() async {
 
 await getBox('journalBox');
 
- await getBox('monthlyJournalBox');
+//  await getBox('monthlyJournalBox');
 
  await getBox('strategyBox');
 
@@ -25,7 +25,7 @@ await getBox('journalBox');
 
   
   static final journalBox = Hive.box('journalBox');
-    static final monthlyJournalBox = Hive.box('monthlyJournalBox');
+    // static final monthlyJournalBox = Hive.box('monthlyJournalBox');
     static final strategyBox = Hive.box('strategyBox');
 
   static final monthlyLearningsBox = Hive.box('monthlyLearningsBox');
@@ -45,33 +45,53 @@ await getBox('journalBox');
   }
    static Future clearboxes() async {
     journalBox.clear();
-    monthlyJournalBox.clear();
+    // monthlyJournalBox.clear();
     monthlyLearningsBox.clear();
     strategyBox.clear();
   }
 
-static Future addEntryToMonth(
-    Map<String, dynamic> entry) async {
+// static Future addEntryToMonth(
+//     Map<String, dynamic> entry) async {
 
-  // ✅ Get month from entry date
-  final date = DateTime.parse(entry['date']);
+//   // ✅ Get month from entry date
+//   final date = DateTime.parse(entry['date']);
 
-  final monthKey =
-      "${_monthName(date.month)} ${date.year}";
+//   final monthKey =
+//       "${_monthName(date.month)} ${date.year}";
 
-  final existing =
-      monthlyJournalBox.get(monthKey, defaultValue: []);
+//   final existing =
+//       monthlyJournalBox.get(monthKey, defaultValue: []);
 
-  final entries = List<Map<String, dynamic>>.from(
-    (existing as List).map(
-      (e) => Map<String, dynamic>.from(e),
-    ),
-  );
+//   final entries = List<Map<String, dynamic>>.from(
+//     (existing as List).map(
+//       (e) => Map<String, dynamic>.from(e),
+//     ),
+//   );
 
-  entries.add(entry);
+//   entries.add(entry);
 
-  await monthlyJournalBox.put(monthKey, entries);
+//   await monthlyJournalBox.put(monthKey, entries);
+// }
+
+static Map<String, List<Map<String, dynamic>>> getEntriesGroupedByMonth() {
+  final entries = getEntries();
+
+  final Map<String, List<Map<String, dynamic>>> grouped = {};
+
+  for (var entry in entries) {
+    final date = DateTime.parse(entry['date']);
+    final monthKey = DateFormat('MMMM yyyy').format(date);
+
+    if (!grouped.containsKey(monthKey)) {
+      grouped[monthKey] = [];
+    }
+
+    grouped[monthKey]!.add(entry);
+  }
+
+  return grouped;
 }
+
 
 static String _monthName(int month) {
   const months = [
@@ -95,45 +115,46 @@ static String _monthName(int month) {
   }
 
   // 2️⃣ Delete from monthlyJournalBox
-  final months = monthlyJournalBox.keys.toList();
+  // final months = monthlyJournalBox.keys.toList();
 
-  for (var month in months) {
-    final data = monthlyJournalBox.get(month);
+  // for (var month in months) {
+  //   final data = monthlyJournalBox.get(month);
 
-    if (data == null) continue;
+  //   if (data == null) continue;
 
-    final entries = List<Map<String, dynamic>>.from(
-      data.map((e) => Map<String, dynamic>.from(e)),
-    );
+  //   final entries = List<Map<String, dynamic>>.from(
+  //     data.map((e) => Map<String, dynamic>.from(e)),
+  //   );
 
-    entries.removeWhere((e) => e['id'] == id);
+  //   entries.removeWhere((e) => e['id'] == id);
 
-    if (entries.isEmpty) {
-      await monthlyJournalBox.delete(month);
-    } else {
-      await monthlyJournalBox.put(month, entries);
-    }
-  }
+  //   if (entries.isEmpty) {
+  //     await monthlyJournalBox.delete(month);
+  //   } else {
+  //     await monthlyJournalBox.put(month, entries);
+  //   }
+  // }
 }
 
-static Future addMonthlyData() async {
-  monthlyJournalBox.clear();
-  final currentMonth = getCurrentMonth();
-  final data = getEntries();
+// static Future addMonthlyData() async {
+//   monthlyJournalBox.clear();
+//   final currentMonth = getCurrentMonth();
+//   final data = getEntries();
 
-  await monthlyJournalBox.put(currentMonth, data);
-}
+//   await monthlyJournalBox.put(currentMonth, data);
+// }
 
   static getCurrentMonth() {
     final now = DateTime.now();
   return DateFormat('MMMM yyyy').format(now);
   }
- static List<Map<String, dynamic>> getEntriesByMonth() {
-    return monthlyJournalBox.values
-        .map((e) => Map<String, dynamic>.from(e))
-        .toList();
 
-  }
+//  static List<Map<String, dynamic>> getEntriesByMonth() {
+//     return monthlyJournalBox.values
+//         .map((e) => Map<String, dynamic>.from(e))
+//         .toList();
+
+//   }
 
 //   static List<Map<String, dynamic>> getEntriesByMonth(String monthKey) {
 //   final data = monthlyJournalBox.get(monthKey);
@@ -174,29 +195,29 @@ static List<String> getStrategiesNameOnly() {
     await strategyBox.deleteAt(index);
   }
 
-  static Future deleteEntryFromMonth(
-    String monthKey,
-    int index,
-) async {
-  final data = monthlyJournalBox.get(monthKey);
+//   static Future deleteEntryFromMonth(
+//     String monthKey,
+//     int index,
+// ) async {
+//   final data = monthlyJournalBox.get(monthKey);
 
-  if (data == null) return;
+//   if (data == null) return;
 
-  final entries = List<Map<String, dynamic>>.from(
-    data.map((e) => Map<String, dynamic>.from(e)),
-  );
+//   final entries = List<Map<String, dynamic>>.from(
+//     data.map((e) => Map<String, dynamic>.from(e)),
+//   );
 
-  if (index < 0 || index >= entries.length) return;
+//   if (index < 0 || index >= entries.length) return;
 
-  entries.removeAt(index);
+//   entries.removeAt(index);
 
-  // If month becomes empty → remove month completely
-  if (entries.isEmpty) {
-    await monthlyJournalBox.delete(monthKey);
-  } else {
-    await monthlyJournalBox.put(monthKey, entries);
-  }
-}
+//   // If month becomes empty → remove month completely
+//   if (entries.isEmpty) {
+//     await monthlyJournalBox.delete(monthKey);
+//   } else {
+//     await monthlyJournalBox.put(monthKey, entries);
+//   }
+// }
 
   /// ------------------ Monthly Learnings ------------------
 
@@ -230,61 +251,61 @@ static List<String> getStrategiesNameOnly() {
 
 
 
-static Future insertTestData() async {
-  await monthlyJournalBox.clear();
+// static Future insertTestData() async {
+//   await monthlyJournalBox.clear();
 
-  final entry1 = {
-    "id": "1",
-    "date": "2026-03-05",
-    "bias": "bullish",
-    "concepts": "test",
-    "mistakes": "none",
-    "instrument": "NIFTY",
-    "imageBase64": "",
-    "result": "win",
-  };
+//   final entry1 = {
+//     "id": "1",
+//     "date": "2026-03-05",
+//     "bias": "bullish",
+//     "concepts": "test",
+//     "mistakes": "none",
+//     "instrument": "NIFTY",
+//     "imageBase64": "",
+//     "result": "win",
+//   };
 
-  final entry2 = {
-    "id": "2",
-    "date": "2026-04-02",
-    "bias": "bearish",
-    "concepts": "test2",
-    "mistakes": "late entry",
-    "instrument": "BANKNIFTY",
-    "imageBase64": "",
-    "result": "loss",
-  };
+//   final entry2 = {
+//     "id": "2",
+//     "date": "2026-04-02",
+//     "bias": "bearish",
+//     "concepts": "test2",
+//     "mistakes": "late entry",
+//     "instrument": "BANKNIFTY",
+//     "imageBase64": "",
+//     "result": "loss",
+//   };
 
-    final entry3 = {
-    "id": "3",
-    "date": "2026-04-04",
-    "bias": "bearish",
-    "concepts": "test2",
-    "mistakes": "late entry",
-    "instrument": "BANKNIFTY",
-    "imageBase64": "",
-    "result": "loss",
-  };
+//     final entry3 = {
+//     "id": "3",
+//     "date": "2026-04-04",
+//     "bias": "bearish",
+//     "concepts": "test2",
+//     "mistakes": "late entry",
+//     "instrument": "BANKNIFTY",
+//     "imageBase64": "",
+//     "result": "loss",
+//   };
 
 
 
-    final entry4 = {
-    "id": "4",
-    "date": "2026-04-04",
-    "bias": "bullish",
-    "concepts": "test2",
-    "mistakes": "late entry",
-    "instrument": "BANKNIFTY",
-    "imageBase64": "",
-    "result": "loss",
-  };
+//     final entry4 = {
+//     "id": "4",
+//     "date": "2026-04-04",
+//     "bias": "bullish",
+//     "concepts": "test2",
+//     "mistakes": "late entry",
+//     "instrument": "BANKNIFTY",
+//     "imageBase64": "",
+//     "result": "loss",
+//   };
 
-  await addEntryToMonth(entry1);
-  await addEntryToMonth(entry2);
-    await addEntryToMonth(entry3);
-  await addEntryToMonth(entry4);
+//   await addEntryToMonth(entry1);
+//   await addEntryToMonth(entry2);
+//     await addEntryToMonth(entry3);
+//   await addEntryToMonth(entry4);
 
-}
+// }
 
 
 
