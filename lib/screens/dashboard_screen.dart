@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_journal/database/hive_service.dart';
 import 'package:flutter_journal/screens/strategy_list_screen.dart';
+import 'package:flutter_journal/sync_button.dart';
 import 'package:flutter_journal/widgets/add_monthly_learning_widget.dart';
 import 'package:flutter_journal/widgets/month_drawer.dart';
 import 'package:flutter_journal/widgets/result_pie_chart.dart';
 import 'package:flutter_journal/widgets/strategy_pie_chart.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'add_entry_screen.dart';
 import 'entries_list_screen.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -101,6 +103,13 @@ Future loadStats() async {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+
+
+            SyncButton(),
+
+
+
+
             // Row(
             //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             //   children: [
@@ -333,6 +342,7 @@ Future loadStats() async {
             isScrollControlled: true,
             builder: (_) => const AddMonthlyLearningSheet(),
           );
+ 
           
         },
         child: const Icon(Icons.add),
