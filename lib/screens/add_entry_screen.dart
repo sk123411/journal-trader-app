@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_journal/database/hive_service.dart';
+import 'package:flutter_journal/database/supabase_service.dart';
 import 'package:flutter_journal/helper_methods/helper_methods.dart';
 import 'package:flutter_journal/widgets/image_preview_dialog.dart';
 import 'package:flutter_journal/widgets/strategy_dropdown.dart';
@@ -59,8 +60,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
 
   saveEntry() async {
     final entry = {
-      "id": DateTime.now().millisecondsSinceEpoch.toString(),
-
+      "id": SupabaseService.uuid.v4(),
       "date": DateFormat('yyyy-MM-dd').format(selectedDate),
       "bias": biasController.text,
       "concepts": conceptsController.text,

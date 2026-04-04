@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 class HiveService {
 
@@ -46,8 +47,8 @@ await getBox('journalBox');
    static Future clearboxes() async {
     journalBox.clear();
     // monthlyJournalBox.clear();
-    monthlyLearningsBox.clear();
-    strategyBox.clear();
+    // monthlyLearningsBox.clear();
+    // strategyBox.clear();
   }
 
 // static Future addEntryToMonth(
@@ -75,6 +76,7 @@ await getBox('journalBox');
 
 static Map<String, List<Map<String, dynamic>>> getEntriesGroupedByMonth() {
   final entries = getEntries();
+
 
   final Map<String, List<Map<String, dynamic>>> grouped = {};
 
@@ -172,6 +174,46 @@ static String _monthName(int month) {
         .toList();
   }
 
+
+  
+
+static Future<void> migrateStrategiesAddId() async {
+  final uuid = Uuid();
+
+  for (var key in strategyBox.keys) {
+    final strategy = Map<String, dynamic>.from(strategyBox.get(key));
+
+    if (strategy['id'] == null) {
+      strategy['id'] = uuid.v4(); // 🔥 assign new UUID
+
+      await strategyBox.put(key, strategy);
+    }
+  }
+
+  print("✅ Strategy IDs added");
+}
+
+
+static Future<void> migrateIdsToUuid() async {
+  final uuid = Uuid();
+
+  for (var key in journalBox.keys) {
+    final entry = Map<String, dynamic>.from(journalBox.get(key));
+
+    final id = entry['id'];
+
+    // Detect old timestamp IDs (short length)
+    if (id.toString().length < 30) {
+      final newId = uuid.v4();
+
+      entry['id'] = newId;
+
+      await journalBox.put(key, entry);
+    }
+  }
+
+  print("✅ Migration to UUID completed");
+}
 
   static List<Map<String, dynamic>> getStrategies() {
     return strategyBox.values

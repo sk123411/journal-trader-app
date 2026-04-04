@@ -27,7 +27,9 @@ class _SyncButtonState extends State<SyncButton> {
               try {
                if (AuthService.isLoggedIn) {
   final entries = HiveService.getEntries();
+  final strategies = HiveService.getStrategies();
   await SupabaseService.uploadJournalEntriesBulk(entries);
+  await SupabaseService.uploadStrategiesBulk(strategies);
 
    ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text("Sync completed")),

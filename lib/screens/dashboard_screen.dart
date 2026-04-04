@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_journal/database/hive_service.dart';
+import 'package:flutter_journal/database/supabase_service.dart';
 import 'package:flutter_journal/screens/strategy_list_screen.dart';
 import 'package:flutter_journal/sync_button.dart';
 import 'package:flutter_journal/widgets/add_monthly_learning_widget.dart';
@@ -29,6 +30,8 @@ Future loadStats() async {
 
   final grouped = HiveService.getEntriesGroupedByMonth();
   data = grouped[selectedMonth] ?? [];
+
+  print(data);
 
   int w = 0, l = 0, b = 0;
 
@@ -63,6 +66,55 @@ Future loadStats() async {
   loadStats();
 }
 
+void _showRestoreDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text("Restore Backup"),
+        content: const Text(
+          "Do you want to overwrite local data with cloud data?\n\n"
+          "⚠️ This will replace all your current local entries.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+
+              await _restoreFromCloud(context);
+            },
+            child: const Text("Yes, Restore"),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> _restoreFromCloud(BuildContext context) async {
+  try {
+    // Optional: show loader
+
+    await SupabaseService.fullDownloadSync();
+
+              Navigator.pop(context);
+
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("✅ Data restored from cloud")),
+    );
+  } catch (e) {
+
+              Navigator.pop(context);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("❌ Error: $e")),
+    );
+  }
+}
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -106,6 +158,13 @@ Future loadStats() async {
 
 
             SyncButton(),
+
+            ElevatedButton(
+  onPressed: () {
+    _showRestoreDialog(context);
+  },
+  child: const Text("Restore from Cloud"),
+),
 
 
 
@@ -337,11 +396,15 @@ Future loadStats() async {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
+
+
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
             builder: (_) => const AddMonthlyLearningSheet(),
           );
+
+         
  
           
         },

@@ -15,8 +15,10 @@ class StrategyListScreen extends StatefulWidget {
 }
 
 class _StrategyListScreenState extends State<StrategyListScreen> {
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
             floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
