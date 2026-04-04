@@ -159,6 +159,8 @@ Future<void> _restoreFromCloud(BuildContext context) async {
 
             SyncButton(),
 
+            SizedBox(height: 12,),
+
             ElevatedButton(
   onPressed: () {
     _showRestoreDialog(context);
