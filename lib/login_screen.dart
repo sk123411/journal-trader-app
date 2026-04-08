@@ -40,6 +40,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text("logged in")),
                   );
+                                    Navigator.pop(context);
+
                 } else {
                   Navigator.pop(context);
                 }
@@ -63,6 +65,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text("signed up")),
                   );
+                                    Navigator.pop(context);
+
                 } else {
                   Navigator.pop(context);
                 }
