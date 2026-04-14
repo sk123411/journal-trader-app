@@ -26,6 +26,8 @@ static final uuid = Uuid();
       'concepts': entry['concepts'],
       'mistakes': entry['mistakes'],
       'imageBase64': entry['imageBase64'],
+      'strategy': entry['strategy'],
+
     };
   }).toList();
 
